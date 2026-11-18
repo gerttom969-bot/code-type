@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="CodeType — practice Python typing, solve coding problems, and track your learning progress.">
+  <title>CodeType — Practice with intent</title>
+  <link rel="stylesheet" href="./styles.css">
+  <!-- Pinned Pyodide runtime. Python execution runs in this page's browser context; it is NOT a sandbox. -->
+  <script defer src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <section id="auth-screen" class="auth-shell" aria-labelledby="auth-heading">
+    <div class="auth-card">
+      <a class="brand brand-centered" href="#" aria-label="CodeType home">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span>CodeType</span>
+      </a>
+      <p class="eyebrow">A deliberate practice environment</p>
+      <h1 id="auth-heading">Build fluency, one line at a time.</h1>
+      <p class="muted auth-intro">Practice typing, complete Python challenges, and keep your progress in one place.</p>
+
+      <div class="auth-tabs" role="group" aria-label="Account action">
+        <button id="login-tab" class="button button-tab active" type="button" aria-pressed="true">Log in</button>
+        <button id="signup-tab" class="button button-tab" type="button" aria-pressed="false">Create account</button>
+      </div>
+
+      <form id="auth-form" novalidate>
+        <label for="auth-username">Username</label>
+        <input id="auth-username" name="username" type="text" autocomplete="username" minlength="3" maxlength="24" required placeholder="e.g. alice_dev">
+        <p class="field-help">3–24 letters, numbers, or underscores.</p>
+
+        <label for="auth-password">Password</label>
+        <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="256" required placeholder="At least 8 characters">
+        <div id="password-strength" class="strength-row" aria-live="polite">
+          <span id="strength-label">Strength: —</span>
+          <span class="strength-track"><span id="strength-fill"></span></span>
+        </div>
+
+        <p id="auth-error" class="form-message error-message" role="alert" hidden></p>
+        <button id="auth-submit" class="button button-primary button-wide" type="submit">Log in</button>
+      </form>
+      <div class="auth-divider"><span>or</span></div>
+      <button id="guest-button" class="button button-secondary button-wide" type="button">Continue as guest</button>
+      <p class="fine-print">Demo accounts stay in this browser. Do not reuse a real password.</p>
+    </div>
+    <p class="auth-footer">HTML · CSS · JavaScript · Python in the browser</p>
+  </section>
+
+  <div id="application" class="application" hidden>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#practice" aria-label="CodeType home">
+          <span class="brand-mark" aria-hidden="true">&gt;_</span><span>CodeType</span>
+        </a>
+        <nav class="primary-nav" aria-label="Main navigation">
+          <button type="button" class="nav-link active" data-page="studio">SICP Studio</button>
+          <button type="button" class="nav-link" data-page="practice">Practice</button>
+          <button type="button" class="nav-link" data-page="challenges">Challenges</button>
+          <button type="button" class="nav-link" data-page="projects">Projects</button>
+          <button type="button" class="nav-link" data-page="leaderboard">Leaderboard</button>
+          <button type="button" class="nav-link" data-page="profile">Profile</button>
+        </nav>
+        <div class="topbar-user">
+          <div class="xp-compact"><span id="nav-level">Lv 1</span><strong id="nav-xp">0 XP</strong></div>
+          <button id="avatar-button" class="avatar-button" type="button" aria-label="Open profile">?</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="page-shell">
+      <div class="runtime-notice" role="note">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <p><strong>Browser Python is not sandboxed.</strong> Only run your own code. Python can access browser JavaScript and network APIs.</p>
+        <span id="runtime-status" class="runtime-status">Python loading…</span>
+      </div>
+
+      <section id="page-studio" class="page-section" aria-labelledby="studio-heading">
+        <div class="studio-hero">
+          <div class="studio-hero-copy">
+            <p class="eyebrow">CODETYPE / THINKING ENVIRONMENT</p>
+            <h1 id="studio-heading">Think in layers.<br><span>Build with intent.</span></h1>
+            <p class="muted">A Python learning workbench inspired by SICP: contracts before implementation, composition before complexity, and evidence before confidence.</p>
+          </div>
+          <div class="studio-hero-mark" aria-hidden="true"><span>λ</span><i></i><b></b><em></em></div>
+          <div class="studio-loop" aria-label="Reasoning loop">
+            <span>01 · SPECIFY</span><i>→</i><span>02 · DECOMPOSE</span><i>→</i><span>03 · COMPOSE</span><i>→</i><span>04 · VERIFY</span><i>→</i><span>05 · REFLECT</span>
+          </div>
+        </div>
+        <div class="studio-toolbar">
+          <div><span class="micro-label">LEARNING SYSTEM</span><strong>Choose a thinking instrument</strong></div>
+          <nav id="studio-tool-nav" class="studio-tool-nav" aria-label="Learning studio tools">
+            <button type="button" class="studio-tool-button active" data-studio-tool="blackboxes" aria-current="page"><span>01</span>Black boxes</button>
+            <button type="button" class="studio-tool-button" data-studio-tool="think"><span>02</span>Think protocol</button>
+            <button type="button" class="studio-tool-button" data-studio-tool="async"><span>03</span>Async lab</button>
+            <button type="button" class="studio-tool-button" data-studio-tool="style"><span>04</span>Style & detect</button>
+            <button type="button" class="studio-tool-button" data-studio-tool="revision"><span>05</span>Revision</button>
+            <button type="button" class="studio-tool-button" data-studio-tool="plan"><span>06</span>Plan</button>
+          </nav>
+        </div>
+        <div id="studio-workspace" class="studio-workspace" aria-live="polite"></div>
+      </section>
+
+      <section id="page-practice" class="page-section" aria-labelledby="practice-heading">
+        <div class="page-heading">
+          <div><p class="eyebrow">TRAINING ROOM</p><h1 id="practice-heading">Practice with intent.</h1><p class="muted">Build muscle memory, then turn that fluency into working Python.</p></div>
+          <span class="status-chip">PERSONAL WORKSPACE</span>
+        </div>
+        <aside class="typing-lens" aria-live="polite">
+          <div class="typing-lens-index">READ<br>THE<br>SHAPE</div>
+          <div class="typing-lens-copy">
+            <span class="micro-label">STRUCTURE LENS</span>
+            <strong id="snippet-concept">One expression, one purpose</strong>
+            <p id="snippet-notice">Before typing, identify the data flow and the job of each part.</p>
+            <small id="snippet-type-focus">TYPE FOCUS: indentation and punctuation reveal structure.</small>
+            <small id="snippet-question">What is the contract of this code?</small>
+          </div>
+        </aside>
+        <div class="segmented-control" role="group" aria-label="Practice mode">
+          <button class="segment active" type="button" data-practice-mode="typing" aria-pressed="true">01 · Type code</button>
+          <button class="segment" type="button" data-practice-mode="blanks" aria-pressed="false">02 · Fill blanks</button>
+        </div>
+
+        <div id="typing-mode" class="practice-grid">
+          <section class="panel editor-panel" aria-labelledby="snippet-name">
+            <div class="panel-header"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><span id="snippet-name" class="mono">snippet.py</span><span id="snippet-topic" class="tag">python</span></div>
+            <pre id="typing-target" class="typing-target" aria-label="Code to type"></pre>
+            <div class="panel-footer"><a id="snippet-docs" class="text-link" href="https://docs.python.org/3/" target="_blank" rel="noopener noreferrer">Python documentation ↗</a><button id="next-snippet" class="button button-quiet button-small" type="button">Skip snippet</button></div>
+          </section>
+          <section class="practice-side">
+            <div class="panel input-panel">
+              <div class="panel-header"><span class="mono">your_input.py</span><span class="muted small">TYPE THE REFERENCE</span></div>
+              <textarea id="typing-input" class="code-input" rows="11" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Type the displayed Python code" placeholder="# Start typing the reference…"></textarea>
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><span>WPM</span><strong id="typing-wpm">0</strong></div>
+              <div class="metric-card"><span>ACCURACY</span><strong id="typing-accuracy">100%</strong></div>
+              <div class="metric-card"><span>ERRORS</span><strong id="typing-errors">0</strong></div>
+            </div>
+            <div id="typing-output-panel" class="output-panel" hidden><div class="output-heading">Python output</div><pre id="typing-output"></pre></div>
+          </section>
+        </div>
+
+        <div id="blanks-mode" class="panel blanks-panel" hidden>
+          <div class="panel-header"><span id="blank-file" class="mono">fill-in.py</span><span id="blank-title" class="muted small"></span><span id="blank-progress" class="tag">0 / 0</span></div>
+          <p class="muted small">Complete every blank. Press Tab or Enter to move to the next field.</p>
+          <div id="blank-workspace" class="blank-workspace mono"></div>
+          <div id="blank-output-panel" class="output-panel" hidden><div class="output-heading">Python output</div><pre id="blank-output"></pre></div>
+          <button id="next-blank" class="button button-secondary" type="button">Next exercise</button>
+        </div>
+      </section>
+
+      <section id="page-challenges" class="page-section" aria-labelledby="challenges-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">PROBLEM SETS</p><h1 id="challenges-heading">Think. Implement. Verify.</h1><p class="muted">Function-based exercises and stdin/stdout challenges.</p></div><span class="status-chip">20 KB CODE LIMIT</span></div>
+        <div class="challenge-layout">
+          <aside class="panel challenge-sidebar"><div class="panel-header"><span class="mono">CHALLENGE INDEX</span></div><div id="challenge-list" class="challenge-list"></div></aside>
+          <section id="challenge-workspace" class="panel challenge-workspace" aria-live="off">
+            <div id="challenge-empty" class="empty-state"><span class="empty-icon">{ }</span><h2>Select a challenge</h2><p class="muted">Choose a problem from the index to inspect its specification and write a solution.</p></div>
+            <div id="challenge-content" hidden>
+              <div class="challenge-title-row"><div><p id="challenge-meta" class="eyebrow">PYTHON · EASY</p><h2 id="challenge-title"></h2></div><span id="challenge-difficulty" class="difficulty">EASY</span></div>
+              <p id="challenge-description" class="challenge-description"></p>
+              <div id="challenge-io-spec" class="io-spec" hidden><div><span>INPUT</span><p id="challenge-input-spec"></p></div><div><span>OUTPUT</span><p id="challenge-output-spec"></p></div></div>
+              <div id="challenge-examples" class="examples-grid"></div>
+              <aside class="challenge-method">
+                <div><span class="micro-label">SICP / BEFORE IMPLEMENTATION</span><strong>Write the contract. Predict an edge case. Name the smaller black boxes.</strong><p>Do not let syntax lead the design. Make the behavior precise first.</p></div>
+                <button id="challenge-open-thinking" class="button button-secondary" type="button">Open Think Protocol ↗</button>
+              </aside>
+              <div class="hint-toolbar"><span class="eyebrow">HINTS <span id="hint-count">0 / 0</span></span><button id="show-hint" class="button button-quiet button-small" type="button">Reveal next hint</button></div>
+              <div id="challenge-hints" class="hint-list"></div>
+              <label for="challenge-code">Your Python solution</label>
+              <textarea id="challenge-code" class="code-input challenge-code" rows="14" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="20480" placeholder="# Write your solution here…"></textarea>
+              <div class="editor-status"><span id="code-byte-count">0 / 20,480 bytes</span><span>Python · Pyodide</span></div>
+              <div class="button-row"><button id="submit-challenge" class="button button-primary" type="button" disabled>Run tests</button><button id="reset-challenge" class="button button-secondary" type="button">Reset code</button></div>
+              <div id="challenge-result" class="result-panel" role="status" aria-live="polite" hidden><strong id="challenge-result-heading"></strong><pre id="challenge-result-output"></pre></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="page-projects" class="page-section" aria-labelledby="projects-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">BUILDING BLOCKS</p><h1 id="projects-heading">Projects to take further.</h1><p class="muted">Read the source, understand the moving parts, and build locally.</p></div><span class="status-chip">SOURCE FIRST</span></div>
+        <div id="projects-grid" class="projects-grid"></div>
+        <section id="project-detail" class="panel project-detail" hidden aria-live="polite"></section>
+      </section>
+
+      <section id="page-leaderboard" class="page-section" aria-labelledby="leaderboard-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">LOCAL RANKINGS</p><h1 id="leaderboard-heading">Progress, made visible.</h1><p class="muted">Sample community rows plus accounts stored in this browser.</p></div></div>
+        <div class="panel table-panel"><table><thead><tr><th scope="col">Rank</th><th scope="col">Username</th><th scope="col">Level</th><th scope="col">XP</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div>
+      </section>
+
+      <section id="page-profile" class="page-section" aria-labelledby="profile-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">YOUR RECORD</p><h1 id="profile-heading">A record of the work.</h1><p class="muted">Your personal progress is stored locally in this browser.</p></div></div>
+        <div class="profile-grid">
+          <section class="panel profile-card"><div id="profile-avatar" class="profile-avatar">?</div><h2 id="profile-username">@guest</h2><p id="profile-created" class="muted small"></p><span id="profile-account-type" class="tag">LOCAL ACCOUNT</span></section>
+          <section class="profile-stats">
+            <div class="metric-card"><span>LEVEL</span><strong id="profile-level">1</strong></div>
+            <div class="metric-card"><span>TOTAL XP</span><strong id="profile-xp">0</strong></div>
+            <div class="metric-card"><span>PROBLEMS SOLVED</span><strong id="profile-solved">0</strong></div>
+            <div class="metric-card"><span>DRILLS COMPLETED</span><strong id="profile-drills">0</strong></div>
+            <div class="panel profile-actions"><h3>Keep your data portable</h3><p class="muted small">Download a JSON copy of your progress. This export does not include your password hash or session token.</p><div class="button-row"><button id="export-progress" class="button button-secondary" type="button">Export progress</button><button id="logout-button" class="button button-danger" type="button">Log out</button></div></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Startup diagnostics: ES modules and Web Crypto require localhost or HTTPS.
+       This classic script still runs when the page is mistakenly opened as file://. -->
+  <script>
+    (() => {
+      function showStartupNotice(title, message, command) {
+        const notice = document.createElement("aside");
+        notice.className = "startup-diagnostic";
+        notice.setAttribute("role", "alert");
+
+        const heading = document.createElement("strong");
+        heading.textContent = title;
+
+        const description = document.createElement("p");
+        description.textContent = message;
+        notice.append(heading, description);
+
+        if (command) {
+          const code = document.createElement("code");
+          code.textContent = command;
+          notice.append(code);
+        }
+        document.body.append(notice);
+      }
+
+      if (location.protocol === "file:") {
+        showStartupNotice(
+          "CodeType needs to run from localhost",
+          "You opened index.html directly. Browsers block this app's JavaScript modules from file:// URLs, so the buttons cannot work. Extract the complete project folder, then double-click start-windows.bat (Windows) or run the local server command below.",
+          "python -m http.server 8000  →  http://localhost:8000"
+        );
+        return;
+      }
+
+      if (!window.crypto || !window.crypto.subtle) {
+        showStartupNotice(
+          "A secure browser origin is required",
+          "Open CodeType through http://localhost or HTTPS. Password hashing needs the browser Web Crypto API."
+        );
+        return;
+      }
+
+      const appModule = document.createElement("script");
+      appModule.type = "module";
+      appModule.src = "./src/main.js";
+      appModule.onerror = () => {
+        showStartupNotice(
+          "CodeType JavaScript could not load",
+          "Make sure you extracted the complete CodeType folder. index.html, styles.css, and the src folder must stay together. Then reload from http://localhost:8000."
+        );
+      };
+      document.head.append(appModule);
+    })();
+  </script>
+
+</body>
+</html>
