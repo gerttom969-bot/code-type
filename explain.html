@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Watch the algorithm work | CodeType</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./src/ui/visualizer.css">
+  <style>
+    .explain { max-width: 860px; margin: 0 auto; padding: 32px 16px 80px; }
+    .explain h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0 0 8px; letter-spacing: -0.02em; }
+    .explain-lead { color: var(--color-muted); max-width: 60ch; margin: 0 0 32px; }
+    .lesson { margin: 0 0 56px; }
+    .lesson h2 { margin: 0 0 6px; font-size: 1.4rem; }
+    .lesson-idea { max-width: 62ch; margin: 0 0 4px; }
+    .lesson-cost { color: var(--color-muted); font-size: 0.9rem; margin: 0 0 16px; }
+    .lesson-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 0 0 8px; }
+    .lesson-field { display: grid; gap: 4px; flex: 1 1 260px; font-size: 0.85rem; color: var(--color-muted); }
+    .lesson-field-small { flex: 0 1 120px; }
+    .lesson-status { min-height: 1.4em; margin: 0 0 8px; color: var(--color-danger); font-size: 0.9rem; }
+    .lesson-invariant { color: var(--color-faint); font-size: 0.85rem; margin: 10px 0 0; }
+    .explain-hint { color: var(--color-faint); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <main class="explain">
+    <h1>Watch the algorithm work</h1>
+    <p class="explain-lead">Step through each algorithm on your own numbers. Use Next to go one step, or Play to watch it run.</p>
+    <p class="explain-hint">This page needs a local server: run <code>npm run serve</code> and open <code>/explain.html</code>.</p>
+    <noscript><p>This page needs JavaScript.</p></noscript>
+    <div id="lessons"></div>
+  </main>
+  <script type="module" src="./src/explain.js"></script>
+</body>
+</html>
