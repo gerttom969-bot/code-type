@@ -15,7 +15,7 @@ Status: Not started | Plan phase: 4 | Blocked by: 03
 ## Steps
 
 ### Step 05.1 Define the schema and the id rule (Size: S)
-- Acceptance criteria: a JSON Schema for each content kind. Every item has a top-level string `id`, a `status` of `active` or `deprecated`, and a `concept_id`. Numeric snippet ids map to strings (for example `snippet-1`) and the old numbers still resolve to them.
+- Acceptance criteria: a JSON Schema for each content kind. Every item has a top-level string `id`, a `status` of `active` or `deprecated`, a `concept_id`, an `origin` (see Step 05.6) and, for problems, a `pattern` and a `visualizer` id (see Step 05.7). Numeric snippet ids map to strings (for example `snippet-1`) and the old numbers still resolve to them.
 - Verification: the schema file is committed and one example of each kind validates.
 - Blocked by: none
 
@@ -42,6 +42,20 @@ Start with the one concept you know best. A short, correct, curated set beats a 
 - Acceptance criteria: removing an item is done by setting `status: deprecated`. Deprecated items leave new practice but still resolve for history and reports.
 - Verification: `tools/risk-gate/tests/test_gitflow.py::test_deleting_a_content_id_is_blocked_even_with_the_label` already proves the gate blocks a deleted id with exit code 2. Add a local test that fails when an old id is missing.
 - Blocked by: 05.2
+
+### Step 05.6 Content origin and no pasted problem text (Size: S)
+- Acceptance criteria: every item has `origin` of `original`, or `adapted` with a `source` field naming the work and a `license` field. A problem statement is written in your own words. A problem from LeetCode, Codeforces or a book is referenced by title and number with a link, never by its statement, examples or code listing. The schema rejects an item with no `origin`.
+- Verification: the schema test fails for an item with a missing `origin`, or `adapted` with an empty `source` or `license`.
+- Blocked by: 05.1
+
+The repository is public, so anything pasted from a book or a judge site is published under your name. Concepts and patterns (two pointers, sliding window) are free to teach. A statement or a code listing written by someone else is not. Rewrite the example with a different domain (a playlist instead of a card deck) and keep the same idea. This file is not legal advice. D-19 records the rule.
+
+### Step 05.7 Patterns and the first slice (Size: M)
+- Acceptance criteria: a `pattern` taxonomy file lists each pattern with a one-sentence **invariant** written by you (what stays true after every step). The first slice is 3 patterns with 5 original problems each, 15 in total. Each problem has an original statement, at least 3 edge cases in its tests, a `reference_solution.py`, a stated time and space complexity, and a `visualizer` id that names one of the Phase 03 visualizers.
+- Verification: `python tools/content-check/check.py` passes for all 15 (starter fails, reference passes), and each problem's reference solution is one you can explain without notes.
+- Blocked by: 05.3, 03.7
+
+Grow past 15 only after real learners have used the slice. Do not add a problem you have not solved yourself. A large generated set that nobody reviewed is the thing to avoid.
 
 ## Exit criteria
 

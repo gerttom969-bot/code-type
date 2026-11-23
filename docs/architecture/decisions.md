@@ -24,6 +24,8 @@ Change a row here first, then edit the phases that cite it.
 | D-16 | Where Python runs in the browser | Default | A Web Worker with a timeout and terminate | 02 |
 | D-17 | Redis | Deferred | Not needed at tiny scale. The leaderboard is a SQL query. Revisit when a measured bottleneck exists | 10 |
 | D-18 | Server-side judge for ranked problems | Deferred | Piston first, gVisor later, only after the API is stable and an abuse model is written | 10 |
+| D-19 | Where problem content comes from | Decided | Original statements in your own words. Third-party problems and book examples are referenced by title, number and link only, never pasted. Each item carries `origin`. The prototype's book-derived snippets are reviewed and rewritten before they enter `content/` | 05 |
+| D-20 | Mastery granularity for patterns | Open | A pattern is one concept at first (one ring per pattern). Split it into sub-concepts only if the evidence shows learners pass one kind of problem but not another | 03, 05 |
 
 ## Recording a decision
 
