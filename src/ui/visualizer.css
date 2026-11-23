@@ -1,0 +1,62 @@
+/* Algorithm step player. Uses the tokens from styles.css; adds none. */
+.viz { --viz-pitch: 52px; --viz-cell: 44px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px 18px 14px; }
+.viz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.viz-title { margin: 0; font-size: 1.05rem; }
+.viz-counter { color: var(--color-muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+
+.viz-stage { position: relative; width: calc(var(--viz-count) * var(--viz-pitch)); max-width: none; height: 230px; margin: 0 auto; border-radius: var(--radius-md); }
+.viz-stage:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 6px; }
+.viz-bars .viz-cell { height: var(--viz-h); bottom: 32px; }
+.viz-cells .viz-cell { height: var(--viz-cell); top: 74px; }
+.viz-cell {
+  position: absolute; left: 0; width: var(--viz-cell);
+  transform: translateX(calc(var(--viz-pos) * var(--viz-pitch)));
+  transition: transform 420ms cubic-bezier(.3,.7,.2,1), background-color 200ms, border-color 200ms, opacity 200ms;
+  display: flex; align-items: flex-start; justify-content: center;
+  background: var(--color-surface-raised); border: 2px solid var(--color-border-strong); border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 0.95rem; font-variant-numeric: tabular-nums; padding-top: 6px; box-sizing: border-box;
+}
+.viz-cells .viz-cell { align-items: center; padding-top: 0; }
+.viz-cell[data-role="pick"]    { border-color: var(--color-primary); background: rgb(81 213 232 / 14%); }
+.viz-cell[data-role="compare"] { border-color: var(--color-warning); border-style: dashed; background: rgb(245 195 106 / 14%); }
+.viz-cell[data-role="pivot"]   { border-color: var(--color-primary); background: rgb(81 213 232 / 24%); box-shadow: 0 -6px 0 -2px var(--color-primary); }
+.viz-cell[data-role="move"]    { border-color: var(--color-warning); background: rgb(245 195 106 / 22%); }
+.viz-cell[data-role="sorted"]  { border-color: var(--color-success); background: rgb(85 214 162 / 14%); }
+.viz-cell[data-role="found"]   { border-color: var(--color-success); background: rgb(85 214 162 / 30%); box-shadow: 0 0 0 3px rgb(85 214 162 / 25%); }
+.viz-cell[data-role="window"]  { border-color: var(--color-primary); background: rgb(81 213 232 / 12%); }
+.viz-cell[data-role="dim"]     { opacity: 0.35; }
+
+.viz-window {
+  position: absolute; top: 62px; bottom: auto; height: 68px; left: 0;
+  transform: translateX(calc(var(--viz-from) * var(--viz-pitch) - 5px));
+  width: calc(var(--viz-span) * var(--viz-pitch) - 2px);
+  border: 2px solid var(--color-primary); border-radius: var(--radius-md); pointer-events: none;
+  transition: transform 420ms cubic-bezier(.3,.7,.2,1), width 420ms cubic-bezier(.3,.7,.2,1);
+}
+.viz-bars .viz-window { top: 4px; height: 192px; border-style: dashed; border-color: var(--color-border-strong); }
+.viz-pointers { position: absolute; left: 0; right: 0; bottom: 0; height: 28px; }
+.viz-cells .viz-pointers { top: 132px; bottom: auto; }
+.viz-pointer {
+  position: absolute; left: 0; width: var(--viz-cell); text-align: center;
+  transform: translateX(calc(var(--viz-pos) * var(--viz-pitch)));
+  color: var(--color-primary); font-family: var(--font-mono); font-size: 0.8rem; transition: transform 420ms cubic-bezier(.3,.7,.2,1);
+}
+.viz-pointer::before { content: "\2191"; display: block; line-height: 1; }
+
+.viz-note { min-height: 3em; margin: 12px 0 8px; color: var(--color-text); }
+.viz-scrub { width: 100%; accent-color: var(--color-primary); }
+.viz-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.viz-btn, .viz-speed {
+  background: var(--color-surface-raised); color: var(--color-text); border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm); padding: 8px 14px; font: inherit; cursor: pointer; min-height: 40px;
+}
+.viz-btn:hover:not(:disabled) { border-color: var(--color-primary); }
+.viz-btn:disabled { opacity: 0.4; cursor: default; }
+.viz-speed { margin-left: auto; }
+
+.viz-scroll { overflow-x: auto; padding: 8px 6px 12px; }
+.viz-scroll .viz-stage { margin: 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .viz-cell, .viz-window, .viz-pointer { transition: none; }
+}
