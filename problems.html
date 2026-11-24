@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Topics | CodeType</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./src/ui/difficulty-pie.css">
+  <style>
+    .topics-page { max-width: 1100px; margin: 0 auto; padding: 32px 16px 80px; }
+    .topics-page h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 0 0 6px; letter-spacing: -0.02em; }
+    .topics-help { color: var(--color-muted); max-width: 62ch; margin: 0 0 24px; }
+    #topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 22px 12px; }
+    .topic { display: grid; justify-items: center; gap: 6px; }
+    .topic-open { background: transparent; border: 1px solid var(--color-border); color: var(--color-muted); border-radius: var(--radius-sm); padding: 4px 10px; font: inherit; font-size: .8rem; cursor: pointer; }
+    .topic-open:hover { border-color: var(--color-primary); color: var(--color-text); }
+    #topic-list { margin-top: 32px; }
+    .plist { list-style: none; padding: 0; margin: 8px 0 0; }
+    .prow { display: flex; justify-content: space-between; gap: 12px; padding: 8px 4px; border-bottom: 1px solid var(--color-border); }
+    .chip { border: 1px solid var(--color-border); border-radius: 6px; padding: 0 8px; font-size: .75rem; }
+    .chip.easy { color: var(--diff-easy); border-color: var(--diff-easy); } .chip.medium { color: var(--diff-medium); border-color: var(--diff-medium); } .chip.hard { color: var(--diff-hard); border-color: var(--diff-hard); }
+    #status { color: var(--color-danger); min-height: 1.4em; }
+  </style>
+</head>
+<body>
+  <main class="topics-page">
+    <h1>Topics</h1>
+    <p class="topics-help">Each circle is one topic. Its colour is the most common difficulty inside it: green easy, yellow medium, red hard. Press it to see all three. Hold it for five seconds and the colours turn.</p>
+    <p id="status" role="status"></p>
+    <div id="topics"></div>
+    <section id="topic-list" aria-live="polite"></section>
+  </main>
+  <script type="module" src="./src/problems.js"></script>
+</body>
+</html>

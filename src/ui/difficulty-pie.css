@@ -1,0 +1,13 @@
+:root { --diff-easy: var(--color-success); --diff-medium: var(--color-warning); --diff-hard: var(--color-danger); --diff-none: var(--color-border); }
+.pie-wrap { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.pie { width: 84px; height: 84px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; min-height: 0; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.pie:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; }
+.pie-disc { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--pie); transition: transform 160ms ease; }
+.pie:active .pie-disc { transform: scale(.96); }
+.pie-hole { position: absolute; inset: 22%; border-radius: 50%; background: var(--color-surface); display: grid; place-items: center; font: 600 1rem var(--font-mono); color: var(--color-text); }
+.pie-disc.is-spinning { animation: pie-turn 4s linear infinite; }
+.pie-disc.is-spinning .pie-hole { animation: pie-turn 4s linear infinite reverse; }
+@keyframes pie-turn { to { transform: rotate(360deg); } }
+.pie-caption { font-weight: 600; font-size: .9rem; }
+.pie-legend { color: var(--color-muted); font-size: .78rem; min-height: 1.2em; }
+@media (prefers-reduced-motion: reduce) { .pie-disc.is-spinning, .pie-disc.is-spinning .pie-hole { animation: none; } .pie-disc { transition: none; } }
