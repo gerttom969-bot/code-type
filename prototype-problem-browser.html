@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE: browsing 150 problems (throwaway)</title>
+<!-- PROTOTYPE. Question: how should a learner browse the 150 problems by subject?
+     Three structurally different variants on one page, switch with ?variant=A|B|C or the arrow keys.
+     Data: titles, difficulty and section order from the public Top Interview 150 list. technique and structure
+     are DRAFT labels for CodeType. No problem statements. No persistence: "solved" lives in memory only. -->
+<style>
+:root{color-scheme:dark;--bg:#080d16;--surface:#101826;--raised:#151f30;--soft:#0c1421;--border:#263449;--border2:#38506a;--text:#e7edf5;--muted:#91a1b5;--faint:#62748b;--primary:#51d5e8;--ink:#06151b;--ok:#55d6a2;--warn:#f5c36a;--bad:#ff8585;--r1:8px;--r2:12px;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,rgb(20 58 77/16%),transparent 38%),var(--bg);color:var(--text);font:16px/1.5 var(--sans);padding-bottom:96px}
+main{max-width:1180px;margin:0 auto;padding:28px 16px}
+h1{font-size:clamp(1.5rem,3.4vw,2.1rem);margin:0 0 6px;letter-spacing:-.02em} h2{font-size:1.15rem;margin:28px 0 10px} h3{font-size:1rem;margin:0}
+p{margin:6px 0} .muted{color:var(--muted)} .small{font-size:.85rem} .mono{font-family:var(--mono)}
+.badge{display:inline-block;border:1px solid var(--warn);color:var(--warn);background:rgb(245 195 106/10%);padding:1px 9px;border-radius:999px;font-size:.75rem;font-weight:600;vertical-align:middle}
+.intro{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin:14px 0}
+.intro ul{margin:6px 0 0 18px;padding:0}
+.bets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 0}
+@media(max-width:800px){.bets{grid-template-columns:1fr}}
+.bet{border:1px solid var(--border);border-radius:var(--r1);padding:10px 12px;background:var(--soft)} .bet b{color:var(--primary)}
+button{font:inherit;color:var(--text);background:var(--raised);border:1px solid var(--border2);border-radius:var(--r1);padding:6px 12px;cursor:pointer;min-height:36px}
+button:hover{border-color:var(--primary)} :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.chip{display:inline-block;border:1px solid var(--border);border-radius:6px;padding:0 7px;font-size:.75rem;color:var(--muted);white-space:nowrap}
+.chip.easy{color:var(--ok);border-color:var(--ok)} .chip.medium{color:var(--warn);border-color:var(--warn)} .chip.hard{color:var(--bad);border-color:var(--bad)}
+.state{font:.8rem/1.4 var(--mono);color:var(--muted);border:1px dashed var(--border2);border-radius:var(--r1);padding:8px 10px;margin:14px 0}
+/* problem list shared by all variants */
+.plist{list-style:none;margin:8px 0 0;padding:0}
+.prow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--border)}
+.prow .t{min-width:0} .prow .meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tick{width:26px;height:26px;border-radius:50%;padding:0;min-height:0;display:inline-flex;align-items:center;justify-content:center;background:transparent}
+.tick[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:var(--ink)}
+.prow.done .t{color:var(--muted);text-decoration:line-through}
+/* A: tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.tile{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);min-height:78px}
+.tile[aria-current=true]{border-color:var(--primary);background:var(--raised)}
+.tile .sub{grid-column:1;color:var(--muted);font-size:.78rem}
+.ring{grid-row:1/3;grid-column:2;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:.7rem var(--mono);background:conic-gradient(var(--ok) calc(var(--p)*1%),var(--border) 0)}
+.ring span{width:32px;height:32px;border-radius:50%;background:var(--surface);display:grid;place-items:center}
+/* B: matrix */
+.scroll{overflow-x:auto}
+table.mx{border-collapse:collapse;min-width:760px;width:100%;font-size:.85rem}
+.mx th,.mx td{border:1px solid var(--border);padding:0;text-align:center}
+.mx th{background:var(--soft);color:var(--muted);font-weight:600;padding:6px 8px}
+.mx th.rowh{text-align:left;min-width:170px} .mx td button{width:100%;height:100%;min-height:38px;border:0;border-radius:0;background:rgb(81 213 232/calc(var(--k)*.55));font-family:var(--mono)}
+.mx td.empty{color:var(--faint);padding:6px}
+.mx td button[aria-pressed=true]{outline:2px solid var(--primary);outline-offset:-2px;background:rgb(81 213 232/55%)}
+.mx tfoot td,.mx tfoot th{background:var(--soft)}
+.insight{border-left:3px solid var(--warn);padding:4px 12px;margin:10px 0;background:rgb(245 195 106/6%)}
+/* C: path */
+.track{position:relative;margin:10px 0 0;padding-left:30px;border-left:2px solid var(--border2)}
+.stage{position:relative;margin:0 0 22px}
+.stage::before{content:"";position:absolute;left:-39px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--primary)}
+.stage.full::before{background:var(--ok);border-color:var(--ok)}
+.stage h3{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tech{background:var(--surface);border:1px solid var(--border);border-radius:var(--r1);margin:8px 0;padding:8px 12px}
+.tech summary{cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;list-style:none}
+.tech summary::-webkit-details-marker{display:none}
+.bar{height:5px;border-radius:3px;background:var(--border);grid-column:1/3;overflow:hidden} .bar i{display:block;height:100%;background:var(--ok);width:calc(var(--p)*1%)}
+/* switcher */
+.switcher{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:#f4f6fa;color:#111;border-radius:999px;padding:6px 8px;box-shadow:0 8px 30px rgb(0 0 0/45%);z-index:10}
+.switcher button{background:#111;color:#fff;border-color:#111;border-radius:999px;min-width:38px}
+.switcher span{min-width:150px;text-align:center;font-weight:600;font-size:.9rem}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Browsing 150 problems <span class="badge">PROTOTYPE, throwaway</span></h1>
+  <p class="muted">Three structures for the same 150 problems. Tick problems as solved to see how each one shows progress. Nothing is saved.</p>
+  <section class="intro" aria-labelledby="q">
+    <h2 id="q" style="margin-top:0">The question this answers</h2>
+    <p><strong>How should a learner find their next problem: by the official section, by technique and data shape, or by a suggested order?</strong></p>
+    <p class="small muted">Assumption: the 23 official sections mix two different ideas (a data structure such as Stack or Trie, and a technique such as Two Pointers or Backtracking). The technique and structure labels here are a first draft by Claude. Review them before trusting any variant built on them.</p>
+    <div class="bets">
+      <div class="bet"><b>A. Sections.</b> Matches the list people already know. Cheap to build. Progress is a count per section.</div>
+      <div class="bet"><b>B. Technique by shape.</b> Shows where one technique appears in different shapes. Needs the labels to be right.</div>
+      <div class="bet"><b>C. Suggested order.</b> Answers "what next" directly. Needs you to decide the order, which is opinion.</div>
+    </div>
+  </section>
+  <div id="stage"></div>
+  <div class="state" id="state" aria-live="polite"></div>
+</main>
+<div class="switcher" role="group" aria-label="Prototype variant"><button id="prev" aria-label="Previous variant">&larr;</button><span id="vlabel"></span><button id="next" aria-label="Next variant">&rarr;</button></div>
+<script>
+const DATA = {
+ "source": "Titles, difficulty and section order follow the public LeetCode Top Interview 150 list (checked on two pages that agree). technique and structure are DRAFT labels written for CodeType and need the owner's review. No problem statements are included.",
+ "techniques": {
+  "tp": "Two pointers",
+  "sw": "Sliding window",
+  "ps": "Prefix and suffix",
+  "hm": "Hashing",
+  "gr": "Greedy",
+  "iv": "Sort and sweep",
+  "st": "Stack",
+  "ll": "Linked-list pointers",
+  "td": "Tree recursion",
+  "bf": "Breadth-first search",
+  "gd": "Graph search (DFS)",
+  "bs": "Binary search",
+  "bt": "Backtracking",
+  "dp": "Dynamic programming",
+  "hp": "Heap",
+  "tr": "Trie",
+  "dc": "Divide and conquer",
+  "bit": "Bit tricks",
+  "mt": "Math",
+  "sim": "Simulation",
+  "ds": "Design a data structure"
+ },
+ "problems": [
+  {
+   "n": 1,
+   "title": "Merge Sorted Array",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 2,
+   "title": "Remove Element",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 3,
+   "title": "Remove Duplicates from Sorted Array",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 4,
+   "title": "Remove Duplicates from Sorted Array II",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 5,
+   "title": "Majority Element",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "hm",
+   "structure": "array"
+  },
+  {
+   "n": 6,
+   "title": "Rotate Array",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "array"
+  },
+  {
+   "n": 7,
+   "title": "Best Time to Buy and Sell Stock",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 8,
+   "title": "Best Time to Buy and Sell Stock II",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 9,
+   "title": "Jump Game",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 10,
+   "title": "Jump Game II",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 11,
+   "title": "H-Index",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "iv",
+   "structure": "array"
+  },
+  {
+   "n": 12,
+   "title": "Insert Delete GetRandom O(1)",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "ds",
+   "structure": "design"
+  },
+  {
+   "n": 13,
+   "title": "Product of Array Except Self",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "ps",
+   "structure": "array"
+  },
+  {
+   "n": 14,
+   "title": "Gas Station",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 15,
+   "title": "Candy",
+   "difficulty": "hard",
+   "section": "Array / String",
+   "technique": "gr",
+   "structure": "array"
+  },
+  {
+   "n": 16,
+   "title": "Trapping Rain Water",
+   "difficulty": "hard",
+   "section": "Array / String",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 17,
+   "title": "Roman to Integer",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 18,
+   "title": "Integer to Roman",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "number"
+  },
+  {
+   "n": 19,
+   "title": "Length of Last Word",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 20,
+   "title": "Longest Common Prefix",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 21,
+   "title": "Reverse Words in a String",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 22,
+   "title": "Zigzag Conversion",
+   "difficulty": "medium",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 23,
+   "title": "Find the Index of the First Occurrence in a String",
+   "difficulty": "easy",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 24,
+   "title": "Text Justification",
+   "difficulty": "hard",
+   "section": "Array / String",
+   "technique": "sim",
+   "structure": "string"
+  },
+  {
+   "n": 25,
+   "title": "Valid Palindrome",
+   "difficulty": "easy",
+   "section": "Two Pointers",
+   "technique": "tp",
+   "structure": "string"
+  },
+  {
+   "n": 26,
+   "title": "Is Subsequence",
+   "difficulty": "easy",
+   "section": "Two Pointers",
+   "technique": "tp",
+   "structure": "string"
+  },
+  {
+   "n": 27,
+   "title": "Two Sum II - Input Array Is Sorted",
+   "difficulty": "medium",
+   "section": "Two Pointers",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 28,
+   "title": "Container With Most Water",
+   "difficulty": "medium",
+   "section": "Two Pointers",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 29,
+   "title": "3Sum",
+   "difficulty": "medium",
+   "section": "Two Pointers",
+   "technique": "tp",
+   "structure": "array"
+  },
+  {
+   "n": 30,
+   "title": "Minimum Size Subarray Sum",
+   "difficulty": "medium",
+   "section": "Sliding Window",
+   "technique": "sw",
+   "structure": "array"
+  },
+  {
+   "n": 31,
+   "title": "Longest Substring Without Repeating Characters",
+   "difficulty": "medium",
+   "section": "Sliding Window",
+   "technique": "sw",
+   "structure": "string"
+  },
+  {
+   "n": 32,
+   "title": "Substring with Concatenation of All Words",
+   "difficulty": "hard",
+   "section": "Sliding Window",
+   "technique": "sw",
+   "structure": "string"
+  },
+  {
+   "n": 33,
+   "title": "Minimum Window Substring",
+   "difficulty": "hard",
+   "section": "Sliding Window",
+   "technique": "sw",
+   "structure": "string"
+  },
+  {
+   "n": 34,
+   "title": "Valid Sudoku",
+   "difficulty": "medium",
+   "section": "Matrix",
+   "technique": "hm",
+   "structure": "matrix"
+  },
+  {
+   "n": 35,
+   "title": "Spiral Matrix",
+   "difficulty": "medium",
+   "section": "Matrix",
+   "technique": "sim",
+   "structure": "matrix"
+  },
+  {
+   "n": 36,
+   "title": "Rotate Image",
+   "difficulty": "medium",
+   "section": "Matrix",
+   "technique": "sim",
+   "structure": "matrix"
+  },
+  {
+   "n": 37,
+   "title": "Set Matrix Zeroes",
+   "difficulty": "medium",
+   "section": "Matrix",
+   "technique": "sim",
+   "structure": "matrix"
+  },
+  {
+   "n": 38,
+   "title": "Game of Life",
+   "difficulty": "medium",
+   "section": "Matrix",
+   "technique": "sim",
+   "structure": "matrix"
+  },
+  {
+   "n": 39,
+   "title": "Ransom Note",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "string"
+  },
+  {
+   "n": 40,
+   "title": "Isomorphic Strings",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "string"
+  },
+  {
+   "n": 41,
+   "title": "Word Pattern",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "string"
+  },
+  {
+   "n": 42,
+   "title": "Valid Anagram",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "string"
+  },
+  {
+   "n": 43,
+   "title": "Group Anagrams",
+   "difficulty": "medium",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "string"
+  },
+  {
+   "n": 44,
+   "title": "Two Sum",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "array"
+  },
+  {
+   "n": 45,
+   "title": "Happy Number",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "number"
+  },
+  {
+   "n": 46,
+   "title": "Contains Duplicate II",
+   "difficulty": "easy",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "array"
+  },
+  {
+   "n": 47,
+   "title": "Longest Consecutive Sequence",
+   "difficulty": "medium",
+   "section": "Hashmap",
+   "technique": "hm",
+   "structure": "array"
+  },
+  {
+   "n": 48,
+   "title": "Summary Ranges",
+   "difficulty": "easy",
+   "section": "Intervals",
+   "technique": "iv",
+   "structure": "intervals"
+  },
+  {
+   "n": 49,
+   "title": "Merge Intervals",
+   "difficulty": "medium",
+   "section": "Intervals",
+   "technique": "iv",
+   "structure": "intervals"
+  },
+  {
+   "n": 50,
+   "title": "Insert Interval",
+   "difficulty": "medium",
+   "section": "Intervals",
+   "technique": "iv",
+   "structure": "intervals"
+  },
+  {
+   "n": 51,
+   "title": "Minimum Number of Arrows to Burst Balloons",
+   "difficulty": "medium",
+   "section": "Intervals",
+   "technique": "iv",
+   "structure": "intervals"
+  },
+  {
+   "n": 52,
+   "title": "Valid Parentheses",
+   "difficulty": "easy",
+   "section": "Stack",
+   "technique": "st",
+   "structure": "string"
+  },
+  {
+   "n": 53,
+   "title": "Simplify Path",
+   "difficulty": "medium",
+   "section": "Stack",
+   "technique": "st",
+   "structure": "string"
+  },
+  {
+   "n": 54,
+   "title": "Min Stack",
+   "difficulty": "medium",
+   "section": "Stack",
+   "technique": "ds",
+   "structure": "design"
+  },
+  {
+   "n": 55,
+   "title": "Evaluate Reverse Polish Notation",
+   "difficulty": "medium",
+   "section": "Stack",
+   "technique": "st",
+   "structure": "array"
+  },
+  {
+   "n": 56,
+   "title": "Basic Calculator",
+   "difficulty": "hard",
+   "section": "Stack",
+   "technique": "st",
+   "structure": "string"
+  },
+  {
+   "n": 57,
+   "title": "Linked List Cycle",
+   "difficulty": "easy",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 58,
+   "title": "Add Two Numbers",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 59,
+   "title": "Merge Two Sorted Lists",
+   "difficulty": "easy",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 60,
+   "title": "Copy List with Random Pointer",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 61,
+   "title": "Reverse Linked List II",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 62,
+   "title": "Reverse Nodes in k-Group",
+   "difficulty": "hard",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 63,
+   "title": "Remove Nth Node From End of List",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 64,
+   "title": "Remove Duplicates from Sorted List II",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 65,
+   "title": "Rotate List",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 66,
+   "title": "Partition List",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ll",
+   "structure": "list"
+  },
+  {
+   "n": 67,
+   "title": "LRU Cache",
+   "difficulty": "medium",
+   "section": "Linked List",
+   "technique": "ds",
+   "structure": "design"
+  },
+  {
+   "n": 68,
+   "title": "Maximum Depth of Binary Tree",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 69,
+   "title": "Same Tree",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 70,
+   "title": "Invert Binary Tree",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 71,
+   "title": "Symmetric Tree",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 72,
+   "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 73,
+   "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 74,
+   "title": "Populating Next Right Pointers in Each Node II",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "bf",
+   "structure": "tree"
+  },
+  {
+   "n": 75,
+   "title": "Flatten Binary Tree to Linked List",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 76,
+   "title": "Path Sum",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 77,
+   "title": "Sum Root to Leaf Numbers",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 78,
+   "title": "Binary Tree Maximum Path Sum",
+   "difficulty": "hard",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 79,
+   "title": "Binary Search Tree Iterator",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "ds",
+   "structure": "design"
+  },
+  {
+   "n": 80,
+   "title": "Count Complete Tree Nodes",
+   "difficulty": "easy",
+   "section": "Binary Tree General",
+   "technique": "bs",
+   "structure": "tree"
+  },
+  {
+   "n": 81,
+   "title": "Lowest Common Ancestor of a Binary Tree",
+   "difficulty": "medium",
+   "section": "Binary Tree General",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 82,
+   "title": "Binary Tree Right Side View",
+   "difficulty": "medium",
+   "section": "Binary Tree BFS",
+   "technique": "bf",
+   "structure": "tree"
+  },
+  {
+   "n": 83,
+   "title": "Average of Levels in Binary Tree",
+   "difficulty": "easy",
+   "section": "Binary Tree BFS",
+   "technique": "bf",
+   "structure": "tree"
+  },
+  {
+   "n": 84,
+   "title": "Binary Tree Level Order Traversal",
+   "difficulty": "medium",
+   "section": "Binary Tree BFS",
+   "technique": "bf",
+   "structure": "tree"
+  },
+  {
+   "n": 85,
+   "title": "Binary Tree Zigzag Level Order Traversal",
+   "difficulty": "medium",
+   "section": "Binary Tree BFS",
+   "technique": "bf",
+   "structure": "tree"
+  },
+  {
+   "n": 86,
+   "title": "Minimum Absolute Difference in BST",
+   "difficulty": "easy",
+   "section": "Binary Search Tree",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 87,
+   "title": "Kth Smallest Element in a BST",
+   "difficulty": "medium",
+   "section": "Binary Search Tree",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 88,
+   "title": "Validate Binary Search Tree",
+   "difficulty": "medium",
+   "section": "Binary Search Tree",
+   "technique": "td",
+   "structure": "tree"
+  },
+  {
+   "n": 89,
+   "title": "Number of Islands",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "matrix"
+  },
+  {
+   "n": 90,
+   "title": "Surrounded Regions",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "matrix"
+  },
+  {
+   "n": 91,
+   "title": "Clone Graph",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "graph"
+  },
+  {
+   "n": 92,
+   "title": "Evaluate Division",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "graph"
+  },
+  {
+   "n": 93,
+   "title": "Course Schedule",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "graph"
+  },
+  {
+   "n": 94,
+   "title": "Course Schedule II",
+   "difficulty": "medium",
+   "section": "Graph General",
+   "technique": "gd",
+   "structure": "graph"
+  },
+  {
+   "n": 95,
+   "title": "Snakes and Ladders",
+   "difficulty": "medium",
+   "section": "Graph BFS",
+   "technique": "bf",
+   "structure": "matrix"
+  },
+  {
+   "n": 96,
+   "title": "Minimum Genetic Mutation",
+   "difficulty": "medium",
+   "section": "Graph BFS",
+   "technique": "bf",
+   "structure": "graph"
+  },
+  {
+   "n": 97,
+   "title": "Word Ladder",
+   "difficulty": "hard",
+   "section": "Graph BFS",
+   "technique": "bf",
+   "structure": "graph"
+  },
+  {
+   "n": 98,
+   "title": "Implement Trie (Prefix Tree)",
+   "difficulty": "medium",
+   "section": "Trie",
+   "technique": "tr",
+   "structure": "design"
+  },
+  {
+   "n": 99,
+   "title": "Design Add and Search Words Data Structure",
+   "difficulty": "medium",
+   "section": "Trie",
+   "technique": "tr",
+   "structure": "design"
+  },
+  {
+   "n": 100,
+   "title": "Word Search II",
+   "difficulty": "hard",
+   "section": "Trie",
+   "technique": "tr",
+   "structure": "matrix"
+  },
+  {
+   "n": 101,
+   "title": "Letter Combinations of a Phone Number",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "string"
+  },
+  {
+   "n": 102,
+   "title": "Combinations",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "array"
+  },
+  {
+   "n": 103,
+   "title": "Permutations",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "array"
+  },
+  {
+   "n": 104,
+   "title": "Combination Sum",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "array"
+  },
+  {
+   "n": 105,
+   "title": "N-Queens II",
+   "difficulty": "hard",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "matrix"
+  },
+  {
+   "n": 106,
+   "title": "Generate Parentheses",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "string"
+  },
+  {
+   "n": 107,
+   "title": "Word Search",
+   "difficulty": "medium",
+   "section": "Backtracking",
+   "technique": "bt",
+   "structure": "matrix"
+  },
+  {
+   "n": 108,
+   "title": "Convert Sorted Array to Binary Search Tree",
+   "difficulty": "easy",
+   "section": "Divide & Conquer",
+   "technique": "dc",
+   "structure": "tree"
+  },
+  {
+   "n": 109,
+   "title": "Sort List",
+   "difficulty": "medium",
+   "section": "Divide & Conquer",
+   "technique": "dc",
+   "structure": "list"
+  },
+  {
+   "n": 110,
+   "title": "Construct Quad Tree",
+   "difficulty": "medium",
+   "section": "Divide & Conquer",
+   "technique": "dc",
+   "structure": "matrix"
+  },
+  {
+   "n": 111,
+   "title": "Merge k Sorted Lists",
+   "difficulty": "hard",
+   "section": "Divide & Conquer",
+   "technique": "dc",
+   "structure": "list"
+  },
+  {
+   "n": 112,
+   "title": "Maximum Subarray",
+   "difficulty": "medium",
+   "section": "Kadane's Algorithm",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 113,
+   "title": "Maximum Sum Circular Subarray",
+   "difficulty": "medium",
+   "section": "Kadane's Algorithm",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 114,
+   "title": "Search Insert Position",
+   "difficulty": "easy",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 115,
+   "title": "Search a 2D Matrix",
+   "difficulty": "medium",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "matrix"
+  },
+  {
+   "n": 116,
+   "title": "Find Peak Element",
+   "difficulty": "medium",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 117,
+   "title": "Search in Rotated Sorted Array",
+   "difficulty": "medium",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 118,
+   "title": "Find First and Last Position of Element in Sorted Array",
+   "difficulty": "medium",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 119,
+   "title": "Find Minimum in Rotated Sorted Array",
+   "difficulty": "medium",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 120,
+   "title": "Median of Two Sorted Arrays",
+   "difficulty": "hard",
+   "section": "Binary Search",
+   "technique": "bs",
+   "structure": "array"
+  },
+  {
+   "n": 121,
+   "title": "Kth Largest Element in an Array",
+   "difficulty": "medium",
+   "section": "Heap",
+   "technique": "hp",
+   "structure": "array"
+  },
+  {
+   "n": 122,
+   "title": "IPO",
+   "difficulty": "hard",
+   "section": "Heap",
+   "technique": "hp",
+   "structure": "array"
+  },
+  {
+   "n": 123,
+   "title": "Find K Pairs with Smallest Sums",
+   "difficulty": "medium",
+   "section": "Heap",
+   "technique": "hp",
+   "structure": "array"
+  },
+  {
+   "n": 124,
+   "title": "Find Median from Data Stream",
+   "difficulty": "hard",
+   "section": "Heap",
+   "technique": "hp",
+   "structure": "design"
+  },
+  {
+   "n": 125,
+   "title": "Add Binary",
+   "difficulty": "easy",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "string"
+  },
+  {
+   "n": 126,
+   "title": "Reverse Bits",
+   "difficulty": "easy",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "number"
+  },
+  {
+   "n": 127,
+   "title": "Number of 1 Bits",
+   "difficulty": "easy",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "number"
+  },
+  {
+   "n": 128,
+   "title": "Single Number",
+   "difficulty": "easy",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "array"
+  },
+  {
+   "n": 129,
+   "title": "Single Number II",
+   "difficulty": "medium",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "array"
+  },
+  {
+   "n": 130,
+   "title": "Bitwise AND of Numbers Range",
+   "difficulty": "medium",
+   "section": "Bit Manipulation",
+   "technique": "bit",
+   "structure": "number"
+  },
+  {
+   "n": 131,
+   "title": "Palindrome Number",
+   "difficulty": "easy",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "number"
+  },
+  {
+   "n": 132,
+   "title": "Plus One",
+   "difficulty": "easy",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "array"
+  },
+  {
+   "n": 133,
+   "title": "Factorial Trailing Zeroes",
+   "difficulty": "medium",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "number"
+  },
+  {
+   "n": 134,
+   "title": "Sqrt(x)",
+   "difficulty": "easy",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "number"
+  },
+  {
+   "n": 135,
+   "title": "Pow(x, n)",
+   "difficulty": "medium",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "number"
+  },
+  {
+   "n": 136,
+   "title": "Max Points on a Line",
+   "difficulty": "hard",
+   "section": "Math",
+   "technique": "mt",
+   "structure": "array"
+  },
+  {
+   "n": 137,
+   "title": "Climbing Stairs",
+   "difficulty": "easy",
+   "section": "1D DP",
+   "technique": "dp",
+   "structure": "number"
+  },
+  {
+   "n": 138,
+   "title": "House Robber",
+   "difficulty": "medium",
+   "section": "1D DP",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 139,
+   "title": "Word Break",
+   "difficulty": "medium",
+   "section": "1D DP",
+   "technique": "dp",
+   "structure": "string"
+  },
+  {
+   "n": 140,
+   "title": "Coin Change",
+   "difficulty": "medium",
+   "section": "1D DP",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 141,
+   "title": "Longest Increasing Subsequence",
+   "difficulty": "medium",
+   "section": "1D DP",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 142,
+   "title": "Triangle",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "matrix"
+  },
+  {
+   "n": 143,
+   "title": "Minimum Path Sum",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "matrix"
+  },
+  {
+   "n": 144,
+   "title": "Unique Paths II",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "matrix"
+  },
+  {
+   "n": 145,
+   "title": "Longest Palindromic Substring",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "string"
+  },
+  {
+   "n": 146,
+   "title": "Interleaving String",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "string"
+  },
+  {
+   "n": 147,
+   "title": "Edit Distance",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "string"
+  },
+  {
+   "n": 148,
+   "title": "Best Time to Buy and Sell Stock III",
+   "difficulty": "hard",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 149,
+   "title": "Best Time to Buy and Sell Stock IV",
+   "difficulty": "hard",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "array"
+  },
+  {
+   "n": 150,
+   "title": "Maximal Square",
+   "difficulty": "medium",
+   "section": "Multidimensional DP",
+   "technique": "dp",
+   "structure": "matrix"
+  }
+ ]
+};
+const T = DATA.techniques, P = DATA.problems;
+const SHAPE = {array:"Array",string:"String",matrix:"Grid",list:"Linked list",tree:"Tree",graph:"Graph",intervals:"Intervals",number:"Number",design:"Class design"};
+const VARIANTS = {A:"Official sections",B:"Technique by shape",C:"Suggested order"};
+const STAGES = [
+  {name:"Work on arrays in place", tech:["tp","sim"]},
+  {name:"Count, look up, window", tech:["hm","ps","sw"]},
+  {name:"Order things", tech:["iv","gr","bs"]},
+  {name:"Stacks, lists, designs", tech:["st","ll","ds"]},
+  {name:"Trees and graphs", tech:["td","bf","gd","hp","tr"]},
+  {name:"Search all the options", tech:["bt","dc","dp"]},
+  {name:"Side quests", tech:["bit","mt"]}
+];
+const state = {variant:"A", solved:new Set(), sel:{A:"Array / String", B:null, C:null}};
+const el = (tag, o = {}, kids = []) => { const e = document.createElement(tag); if (o.cls) e.className = o.cls; if (o.text != null) e.textContent = o.text;
+  for (const [k,v] of Object.entries(o.attr || {})) e.setAttribute(k, v); if (o.on) e.addEventListener("click", o.on); e.append(...kids); return e; };
+const pct = (list) => list.length ? Math.round(100 * list.filter(p => state.solved.has(p.n)).length / list.length) : 0;
+const count = (list) => list.filter(p => state.solved.has(p.n)).length;
+const uniq = (a) => [...new Set(a)];
+
+function row(p, showSection) {
+  const done = state.solved.has(p.n);
+  const tick = el("button", {cls:"tick", text: done ? "✓" : "", attr:{"aria-pressed":String(done),"aria-label":(done ? "Mark unsolved: " : "Mark solved: ") + p.title}, on:() => { done ? state.solved.delete(p.n) : state.solved.add(p.n); render(); }});
+  const meta = el("div", {cls:"meta"}, [el("span",{cls:"chip "+p.difficulty,text:p.difficulty}), el("span",{cls:"chip",text:T[p.technique]}), el("span",{cls:"chip",text:SHAPE[p.structure]})]);
+  if (showSection) meta.append(el("span",{cls:"chip",text:p.section}));
+  return el("li", {cls:"prow"+(done?" done":"")}, [tick, el("div",{cls:"t",text:p.title}), meta]);
+}
+const list = (items, showSection) => el("ul", {cls:"plist"}, items.map(p => row(p, showSection)));
+
+function viewA() {
+  const secs = uniq(P.map(p => p.section)), box = el("div");
+  const tiles = el("div", {cls:"tiles"});
+  for (const s of secs) {
+    const items = P.filter(p => p.section === s), k = uniq(items.map(p => p.technique)).length;
+    tiles.append(el("button", {cls:"tile", attr:{"aria-current":String(state.sel.A === s)}, on:() => { state.sel.A = s; render(); }}, [
+      el("b",{text:s}), el("div",{cls:"ring",attr:{style:"--p:"+pct(items)}},[el("span",{text:count(items)+"/"+items.length})]),
+      el("span",{cls:"sub",text:k > 1 ? k + " techniques inside" : "1 technique"})]));
+  }
+  box.append(tiles);
+  const items = P.filter(p => p.section === state.sel.A);
+  box.append(el("h2",{text:state.sel.A + " (" + count(items) + " of " + items.length + " solved)"}), list(items, false));
+  return box;
+}
+
+function viewB() {
+  const techs = Object.keys(T).sort((a,b) => P.filter(p=>p.technique===b).length - P.filter(p=>p.technique===a).length);
+  const shapes = Object.keys(SHAPE), box = el("div");
+  const mixed = uniq(P.map(p => p.section)).map(s => [s, uniq(P.filter(p => p.section === s).map(p => p.technique)).length]).filter(x => x[1] > 2).sort((a,b) => b[1]-a[1]);
+  box.append(el("p",{cls:"insight",text:"Sections that mix three or more techniques: " + mixed.map(x => x[0] + " (" + x[1] + ")").join(", ") + ". A section is not one skill, so a ring per section does not measure one skill."}));
+  const head = el("tr",{},[el("th",{cls:"rowh",text:"Technique"}), ...shapes.map(s => el("th",{text:SHAPE[s]})), el("th",{text:"All"})]);
+  const body = techs.map(t => el("tr",{},[el("th",{cls:"rowh",text:T[t]}), ...shapes.map(s => {
+    const items = P.filter(p => p.technique===t && p.structure===s), on = state.sel.B && state.sel.B.t===t && state.sel.B.s===s;
+    if (!items.length) return el("td",{cls:"empty",text:"·"});
+    return el("td",{},[el("button",{text:String(items.length),attr:{style:"--k:"+Math.min(1,items.length/6),"aria-pressed":String(on),"aria-label":T[t]+" on "+SHAPE[s]+": "+items.length+" problems"},on:() => { state.sel.B = {t,s}; render(); }})]);
+  }), el("td",{text:String(P.filter(p=>p.technique===t).length)})]));
+  const foot = el("tr",{},[el("th",{cls:"rowh",text:"All"}), ...shapes.map(s => el("td",{text:String(P.filter(p=>p.structure===s).length)})), el("td",{text:"150"})]);
+  box.append(el("div",{cls:"scroll"},[el("table",{cls:"mx"},[el("thead",{},[head]),el("tbody",{},body),el("tfoot",{},[foot])])]));
+  if (state.sel.B) { const {t,s} = state.sel.B, items = P.filter(p => p.technique===t && p.structure===s);
+    box.append(el("h2",{text:T[t]+" on "+SHAPE[s].toLowerCase()+" ("+count(items)+" of "+items.length+" solved)"}), list(items, true)); }
+  else box.append(el("p",{cls:"muted",text:"Click a number to list those problems."}));
+  return box;
+}
+
+function viewC() {
+  const box = el("div"), track = el("div",{cls:"track"});
+  STAGES.forEach((st, i) => {
+    const items = P.filter(p => st.tech.includes(p.technique));
+    const stage = el("section",{cls:"stage"+(pct(items) === 100 ? " full":"")},[el("h3",{},[el("span",{text:(i+1)+". "+st.name}),el("span",{cls:"small muted",text:count(items)+" of "+items.length+" solved"})])]);
+    for (const t of st.tech) {
+      const ti = P.filter(p => p.technique===t), start = ti.find(p => p.difficulty==="easy") || ti[0];
+      const d = el("details",{cls:"tech"}); if (state.sel.C === t) d.open = true;
+      d.addEventListener("toggle", () => { if (d.open) state.sel.C = t; });
+      d.append(el("summary",{},[el("span",{},[el("b",{text:T[t]}),el("span",{cls:"small muted",text:"  start with: " + start.title})]),el("span",{cls:"small mono",text:count(ti)+"/"+ti.length}),
+        el("div",{cls:"bar",attr:{style:"--p:"+pct(ti)}},[el("i")])]), list(ti.slice().sort((a,b)=>["easy","medium","hard"].indexOf(a.difficulty)-["easy","medium","hard"].indexOf(b.difficulty)), false));
+      stage.append(d);
+    }
+    track.append(stage);
+  });
+  box.append(el("p",{cls:"muted small",text:"The order is a first guess (opinion, not data). Inside each technique, problems go easy to hard."}), track);
+  return box;
+}
+
+function render() {
+  const open = [...document.querySelectorAll("details.tech")].filter(d => d.open).length; // keep open state across rerender via state.sel.C only
+  const host = document.getElementById("stage"); host.replaceChildren({A:viewA,B:viewB,C:viewC}[state.variant]());
+  document.getElementById("vlabel").textContent = state.variant + " (" + VARIANTS[state.variant] + ")";
+  const bySel = JSON.stringify(state.sel[state.variant]);
+  document.getElementById("state").textContent = "variant=" + state.variant + "  solved=" + state.solved.size + "/150  selection=" + bySel + "  by difficulty: easy " + count(P.filter(p=>p.difficulty==="easy")) + "/" + P.filter(p=>p.difficulty==="easy").length + ", medium " + count(P.filter(p=>p.difficulty==="medium")) + "/" + P.filter(p=>p.difficulty==="medium").length + ", hard " + count(P.filter(p=>p.difficulty==="hard")) + "/" + P.filter(p=>p.difficulty==="hard").length;
+}
+function setVariant(v) { state.variant = v; const u = new URL(location.href); u.searchParams.set("variant", v); history.replaceState(null, "", u); render(); }
+const keys = Object.keys(VARIANTS), step = (d) => setVariant(keys[(keys.indexOf(state.variant) + d + keys.length) % keys.length]);
+document.getElementById("prev").onclick = () => step(-1); document.getElementById("next").onclick = () => step(1);
+document.addEventListener("keydown", (e) => { if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable) return; if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); });
+const q = new URLSearchParams(location.search).get("variant"); if (VARIANTS[q]) state.variant = q;
+render();
+</script>
+</body>
+</html>
