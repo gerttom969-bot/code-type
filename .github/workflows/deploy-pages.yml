@@ -1,0 +1,56 @@
+name: deploy-pages
+
+# Manual only. Publishes the static web app to GitHub Pages after the tests pass.
+# One-time setup by the owner: Settings -> Pages -> Source: "GitHub Actions".
+# Only files in the allowlist below are published (no tests, no docs, no .github).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build the site folder from an allowlist
+        run: |
+          mkdir _site
+          cp index.html explain.html styles.css _site/
+          cp -r src _site/src
+          # "Merged is not deployed": the live site says which commit it was built from.
+          echo "${GITHUB_SHA}" > _site/version.txt
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
