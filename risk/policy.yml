@@ -1,0 +1,89 @@
+version: 1
+
+# Step 2 knobs. Hand-tuned v0 heuristic, NOT a trained model (see tools/risk-gate/risk_gate/score.py).
+score:
+  threshold: 0.5
+  ood_max_lines: 1500
+  ood_max_files: 40
+
+# Share of CLEARED PRs sampled for a post-merge human audit.
+audit_rate: 0.10
+
+# Step 1: any match forces human review.
+# `planned: true` = the path does not exist yet. tools/risk-gate/tests/test_policy_live.py fails
+# on any non-planned rule that matches nothing, so rules cannot silently rot.
+# When a planned path appears, delete `planned: true` in the same PR.
+one_way_door:
+  # --- exists today (static, local-first app) ---
+  - pattern: "src/security/**"
+    reason: "Password KDF and the HTML-escaping boundary: a bug here is a vulnerability"
+  - pattern: "src/services/auth-service.js"
+    reason: "Sessions, login backoff, token rotation"
+  - pattern: "src/domain/progress.js"
+    reason: "Persisted schema (schemaVersion): old records live in users' browsers and cannot be recalled"
+  - pattern: "src/infrastructure/**"
+    reason: "Storage format and the Pyodide execution boundary (user code runs here)"
+  - pattern: "SECURITY.md"
+    reason: "Documents what the app does NOT protect against; weakening it hides risk"
+  - pattern: ".github/**"
+    reason: "CI and deploy pipeline"
+  - pattern: "risk/**"
+    reason: "The gate's own policy"
+  - pattern: "tools/risk-gate/**"
+    reason: "The gate's own code"
+  # --- planned (backend phases) ---
+  - pattern: "apps/api/alembic/**"
+    reason: "Migrations mutate data; git cannot undo them (expand -> migrate -> contract)"
+    planned: true
+  - pattern: "apps/api/app/models/**"
+    reason: "Schema source of truth"
+    planned: true
+  - pattern: "apps/api/app/ledger/**"
+    reason: "XP ledger: a bug here corrupts history permanently"
+    planned: true
+  - pattern: "apps/api/app/auth/**"
+    reason: "Sessions, magic links, CSRF"
+    planned: true
+  - pattern: "apps/judge-worker/**"
+    reason: "Sandbox boundary: user code runs here"
+    planned: true
+  - pattern: "content/**"
+    reason: "Content ids are referenced by the ledger and must never change or disappear"
+    planned: true
+  - pattern: "/PROJECT.md"
+    reason: "Constitution"
+    planned: true
+
+# Adds to the Step 2 score; never forces review by itself.
+elevated:
+  - pattern: "index.html"
+    reason: "Startup checks, script loading, future CSP"
+  - pattern: "src/config.js"
+    reason: "Security constants (KDF iterations, session TTL, size caps)"
+  - pattern: "**/pyproject.toml"
+    reason: "Python dependencies (supply chain)"
+  - pattern: "**/package.json"
+    reason: "JS dependencies (supply chain)"
+  - pattern: "**/uv.lock"
+    reason: "Python lockfile: pins the gate's own dependencies"
+  - pattern: "package-lock.json"
+    reason: "JS lockfile"
+    planned: true
+  - pattern: "pnpm-lock.yaml"
+    reason: "JS lockfile"
+    planned: true
+  - pattern: "apps/api/app/routes/**"
+    reason: "Public API surface"
+    planned: true
+  - pattern: "apps/api/app/settings.py"
+    reason: "Configuration contract"
+    planned: true
+  - pattern: "apps/api/app/db.py"
+    reason: "Connection and transaction handling"
+    planned: true
+  - pattern: "docker-compose.yml"
+    reason: "Local stack"
+    planned: true
+  - pattern: "**/Dockerfile"
+    reason: "Build and runtime image"
+    planned: true

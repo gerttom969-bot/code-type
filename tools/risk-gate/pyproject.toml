@@ -1,0 +1,35 @@
+[project]
+name = "codetype-risk-gate"
+version = "0.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "pathspec>=0.12",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "types-PyYAML>=6.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "T20"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["risk_gate", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

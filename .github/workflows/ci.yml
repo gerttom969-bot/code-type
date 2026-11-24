@@ -1,0 +1,72 @@
+name: ci
+
+# Runs on every pull request and every push to main.
+# `pull_request` (not `pull_request_target`): PR code runs with a read-only token and no secrets,
+# which is what you want for code from branches and forks.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: web (node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]   # package.json says >=20, so test the floor and the current LTS
+    steps:
+      # TODO: pin these actions to full commit SHAs (tags can move). This is a .github/** change: review it.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+
+  types:
+    name: types (deno check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check the learning core (skipped until src/learning/core exists)
+        run: |
+          if [ -f src/learning/core/index.js ]; then
+            deno check src/learning/core/index.js
+          else
+            echo "src/learning/core/index.js not found; nothing to check yet."
+          fi
+
+  risk-gate:
+    name: risk-gate tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tools/risk-gate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen --extra dev
+      - run: uv run pytest
+      - run: uv run ruff check .
+      - run: uv run mypy
