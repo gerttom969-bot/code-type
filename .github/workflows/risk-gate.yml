@@ -1,0 +1,104 @@
+name: risk-gate
+
+# SECURITY INVARIANT: this workflow uses `pull_request_target`, so GitHub runs THIS file from the
+# base branch. A PR therefore cannot edit or delete the gate that judges it (with the plain
+# `pull_request` trigger it could). The PR's commits are fetched as DATA for `git diff` only.
+# NEVER add a step here that checks out, builds, installs from, or runs anything from the PR.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: risk-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      # The workspace is the BASE commit: tool and policy are the trusted, already-merged versions.
+      # TODO: pin these actions to full commit SHAs (tags can move). Needs one lookup per action.
+      - name: Checkout trusted base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      - name: Fetch PR commits as data (never checked out)
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pull/${PR_NUMBER}"
+          git cat-file -e "${HEAD_SHA}^{commit}"
+
+      - uses: astral-sh/setup-uv@v5
+
+      # A human approval vouches for the diff they read. A new push is a new diff, so the
+      # label is dropped on `synchronize` and ignored for this run.
+      - name: Resolve labels
+        id: labels
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          ACTION: ${{ github.event.action }}
+        run: |
+          labels="$PR_LABELS"
+          if [ "$ACTION" = "synchronize" ]; then
+            labels=$(printf '%s' "$labels" | tr ',' '\n' | grep -vx 'critical-reviewed' | paste -sd, - || true)
+          fi
+          echo "value=$labels" >> "$GITHUB_OUTPUT"
+
+      - name: Drop stale approval label after new commits
+        if: github.event.action == 'synchronize'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --remove-label critical-reviewed
+
+      - name: Run risk gate
+        env:
+          PYTHONPATH: tools/risk-gate
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_LABELS: ${{ steps.labels.outputs.value }}
+          RISK_AUDIT_SALT: ${{ secrets.RISK_AUDIT_SALT }}
+        run: |
+          uv run --frozen --project tools/risk-gate python -m risk_gate.cli \
+            --repo . \
+            --policy risk/policy.yml \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            --pr "$PR_NUMBER" \
+            --labels "$PR_LABELS" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --output-json risk-decision.json
+
+      - name: Tag PR for post-merge audit
+        if: always() && hashFiles('risk-decision.json') != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$(jq -r .audit_selected risk-decision.json)" = "true" ]; then
+            gh label create audit-selected --color FBCA04 \
+              --description "Cleared PR sampled for post-merge audit" || true
+            gh pr edit "$PR_NUMBER" --add-label audit-selected
+          fi
+
+      - name: Keep the decision (future training data)
+        if: always() && hashFiles('risk-decision.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: risk-decision
+          path: risk-decision.json
+          retention-days: 90
