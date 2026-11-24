@@ -52,3 +52,21 @@ jobs:
           else
             echo "src/learning/core/index.js not found; nothing to check yet."
           fi
+
+  risk-gate:
+    name: risk-gate tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tools/risk-gate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen --extra dev
+      - run: uv run pytest
+      - run: uv run ruff check .
+      - run: uv run mypy

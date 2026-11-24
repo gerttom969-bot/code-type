@@ -1,0 +1,41 @@
+name: risk-audit
+
+# `pull_request_target` + no checkout: this only reads PR metadata (passed through env, never
+# interpolated into the script) and opens an issue, so it also works for fork PRs.
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  audit:
+    if: >-
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'audit-selected')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open audit issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh label create risk-audit --color 5319E7 --description "Post-merge audit" || true
+          gh label create audit-ok --color 0E8A16 --description "Audit: cleared PR was fine" || true
+          gh label create audit-missed --color B60205 --description "Audit: gate should have caught this" || true
+          gh issue create \
+            --title "Audit PR #${PR_NUMBER}: ${PR_TITLE}" \
+            --label risk-audit \
+            --body-file - <<EOF
+          Cleared without human review and sampled for audit: ${PR_URL}
+
+          - [ ] Read the diff as if you were the reviewer
+          - [ ] Did it touch anything irreversible (stored data, auth, the Python execution boundary)?
+          - [ ] Any revert, incident or follow-up fix since the merge?
+
+          Close with the label audit-ok or audit-missed. These labels are the dataset for recalibrating Step 2.
+          EOF
