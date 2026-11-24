@@ -1,0 +1,4 @@
+{
+  "compilerOptions": { "checkJs": true, "strict": true },
+  "tasks": { "check": "deno check src/learning/core/index.js" }
+}

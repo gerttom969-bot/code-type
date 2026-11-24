@@ -1,0 +1,645 @@
+{
+  "now": 1700000000000,
+  "cards": [
+    "a",
+    "b",
+    "c",
+    "d"
+  ],
+  "grade": [
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "again",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700000300000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "again",
+          "repetitions": 0
+        }
+      }
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "hard",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700086400000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "good",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700259200000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "good",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "easy",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700604800000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "easy",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "medium",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "GOOD",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "none",
+      "prior": {},
+      "cardId": "a",
+      "rating": "toString",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "again",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700000300000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "again",
+          "repetitions": 0
+        }
+      }
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "hard",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700086400000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "good",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700259200000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "good",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "easy",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700604800000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "easy",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "medium",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "GOOD",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "fresh",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000000,
+          "lastReviewedAt": 1699999999999,
+          "rating": "good",
+          "repetitions": 0
+        }
+      },
+      "cardId": "a",
+      "rating": "toString",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "again",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700000300000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "again",
+          "repetitions": 0
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "hard",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700086400000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "hard",
+          "repetitions": 5
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "good",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700259200000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "good",
+          "repetitions": 5
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "easy",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700604800000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "easy",
+          "repetitions": 5
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      }
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "medium",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "GOOD",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "a",
+      "rating": "toString",
+      "now": 1700000000000,
+      "throws": "TypeError",
+      "message": "Unknown review rating."
+    },
+    {
+      "priorName": "veteran",
+      "prior": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        }
+      },
+      "cardId": "z",
+      "rating": "good",
+      "now": 1700000000000,
+      "returns": {
+        "a": {
+          "dueAt": 1700000000005,
+          "lastReviewedAt": 1699999999991,
+          "rating": "easy",
+          "repetitions": 4
+        },
+        "b": {
+          "dueAt": 1699999999999,
+          "lastReviewedAt": 1699999999901,
+          "rating": "hard",
+          "repetitions": 1
+        },
+        "z": {
+          "dueAt": 1700259200000,
+          "lastReviewedAt": 1700000000000,
+          "rating": "good",
+          "repetitions": 1
+        }
+      }
+    }
+  ],
+  "dueAt": [
+    {
+      "cardId": "a",
+      "schedules": {
+        "a": {
+          "dueAt": 1699999999999
+        },
+        "b": {
+          "dueAt": 1700000000000
+        },
+        "c": {
+          "dueAt": 1700000000001
+        },
+        "d": {
+          "dueAt": "NaN"
+        }
+      },
+      "now": 1700000000000,
+      "dueAt": 1699999999999
+    },
+    {
+      "cardId": "b",
+      "schedules": {
+        "a": {
+          "dueAt": 1699999999999
+        },
+        "b": {
+          "dueAt": 1700000000000
+        },
+        "c": {
+          "dueAt": 1700000000001
+        },
+        "d": {
+          "dueAt": "NaN"
+        }
+      },
+      "now": 1700000000000,
+      "dueAt": 1700000000000
+    },
+    {
+      "cardId": "c",
+      "schedules": {
+        "a": {
+          "dueAt": 1699999999999
+        },
+        "b": {
+          "dueAt": 1700000000000
+        },
+        "c": {
+          "dueAt": 1700000000001
+        },
+        "d": {
+          "dueAt": "NaN"
+        }
+      },
+      "now": 1700000000000,
+      "dueAt": 1700000000001
+    },
+    {
+      "cardId": "d",
+      "schedules": {
+        "a": {
+          "dueAt": 1699999999999
+        },
+        "b": {
+          "dueAt": 1700000000000
+        },
+        "c": {
+          "dueAt": 1700000000001
+        },
+        "d": {
+          "dueAt": "NaN"
+        }
+      },
+      "now": 1700000000000,
+      "dueAt": 1700000000000
+    },
+    {
+      "cardId": "e",
+      "schedules": {
+        "a": {
+          "dueAt": 1699999999999
+        },
+        "b": {
+          "dueAt": 1700000000000
+        },
+        "c": {
+          "dueAt": 1700000000001
+        },
+        "d": {
+          "dueAt": "NaN"
+        }
+      },
+      "now": 1700000000000,
+      "dueAt": 1700000000000
+    },
+    {
+      "cardId": "a",
+      "schedules": {},
+      "now": 1700000000000,
+      "dueAt": 1700000000000
+    }
+  ],
+  "dueCards": [
+    {
+      "schedules": {},
+      "ids": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "schedules": "dueSchedules",
+      "ids": [
+        "a",
+        "b",
+        "d"
+      ]
+    }
+  ]
+}
