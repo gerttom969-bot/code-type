@@ -64,6 +64,24 @@ With threshold 0.7 and confidence 0.8, one earlier failure raises the 4 to 7. Pi
 
 Wall-clock time in a browser varies between devices, so it cannot be a fair measure. Efficiency never feeds the mastery state, because a copied optimal answer would then look like understanding.
 
+### Step 03.7 Pattern visualizers (Size: M per pattern)
+- Acceptance criteria: one reusable visualizer per **pattern**, not per problem (for example sliding window: the array with the window highlighted, moving as the steps play). It is driven by a list of steps (`{indices, label, state}`), so any problem of that pattern can feed it. Play, pause and step buttons work with the keyboard. It respects the reduced-motion setting and shows the same information as text for a screen reader. Decorative animation (such as the hero) is CSS only and also respects reduced motion.
+- Verification: unit test the step-list builder for each visualizer; open the page with reduced motion on and confirm no continuous animation; step through with the keyboard only.
+- Blocked by: 02.2, D-01
+
+Start with 3 visualizers for the 3 patterns in Step 05.7.
+
+### Step 03.8 Execution tracer (Size: L)
+- Acceptance criteria: the runner can execute a learner's function and return a list of steps (line number, local variables after the line, call depth), produced inside the Worker with the Python tracing hook. The trace has a step limit and an output size limit, so a loop that never ends or a huge list returns a "trace too long" result instead of freezing. The same step list format feeds the visualizers in Step 03.7.
+- Verification: tests with a fake runtime for a small function, a loop past the step limit, and a result with large values; the trace of a correct solution matches a stored expected trace.
+- Blocked by: 02.2, 02.3
+
+A trace is feedback for the learner. It never counts toward mastery, and a trace shown for the reference solution is the learner's example, not a proof of their understanding.
+
+## Pattern mastery
+
+Mastery is stored per `concept_id`. If a concept is a pattern (sliding window), the pattern ring in the UI is the mastery state, not the number of problems solved. A count says "I clicked 18 problems". The state says "there is evidence I can apply the pattern to a new problem". D-20 decides whether a pattern is one concept or a group of concepts.
+
 ## Exit criteria
 
 Mastery, spacing, XP, level and streak are pure and tested, failures are counted, and `npm test` has grown by the new test files.
