@@ -27,11 +27,16 @@ function reqToPromise(req) {
   });
 }
 
+// client_created_at is an ISO-8601 string on the wire (numbers are accepted too).
+// Compare as instants: subtracting two strings gives NaN and an arbitrary order.
+function toMs(v) {
+  return typeof v === 'number' ? v : Date.parse(v);
+}
+
 function compareEvents(a, b) {
   // Primary: client_created_at. Tie-breaker: key (insertion order) — stable and deterministic.
-  if (a.client_created_at !== b.client_created_at) {
-    return a.client_created_at - b.client_created_at;
-  }
+  const d = toMs(a.client_created_at) - toMs(b.client_created_at);
+  if (d !== 0 && !Number.isNaN(d)) return d;
   return a.key - b.key;
 }
 
